@@ -8,11 +8,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const username = process.env.GITHUB_USERNAME || '';
     const token = process.env.GITHUB_TOKEN || '';
 
+    console.log('Environment check:', {
+      hasUsername: !!username,
+      hasToken: !!token,
+      username: username
+    });
+
     if (!username || !token) {
       return res.status(500).send('Missing GITHUB_USERNAME or GITHUB_TOKEN environment variables');
     }
 
+    console.log('Fetching GitHub stats...');
     const data = await getGitHubStats(username, token);
+    console.log('Stats fetched successfully');
 
     const now = new Date();
     const lastPush = new Date(data.lastPush);
@@ -22,8 +30,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const streak = calculateStreak(data.calendar);
     const monthCommits = calculateMonthCommits(data.calendar);
 
+    console.log('Loading SVG template...');
     const svgTemplate = getSvgTemplate();
+    console.log('Template loaded, size:', svgTemplate.length);
+
+    console.log('Rendering SVG...');
     const svg = renderSvg(svgTemplate, data, role, streak, monthCommits);
+    console.log('SVG rendered successfully');
 
     res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300'); // 5 min cache
