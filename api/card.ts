@@ -1,0 +1,36 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { getGitHubStats, renderSvg } from '../src/services';
+import { getRole, calculateStreak, calculateMonthCommits } from '../src/utils';
+import { getSvgTemplate } from '../src/template';
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  try {
+    const username = process.env.GITHUB_USERNAME || '';
+    const token = process.env.GITHUB_TOKEN || '';
+
+    if (!username || !token) {
+      return res.status(500).send('Missing GITHUB_USERNAME or GITHUB_TOKEN environment variables');
+    }
+
+    const data = await getGitHubStats(username, token);
+
+    const now = new Date();
+    const lastPush = new Date(data.lastPush);
+    const hoursSincePush = (now.getTime() - lastPush.getTime()) / (1000 * 60 * 60);
+
+    const role = getRole(hoursSincePush);
+    const streak = calculateStreak(data.calendar);
+    const monthCommits = calculateMonthCommits(data.calendar);
+
+    const svgTemplate = getSvgTemplate();
+    const svg = renderSvg(svgTemplate, data, role, streak, monthCommits);
+
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300'); // 5 min cache
+    res.status(200).send(svg);
+
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Error generating stats card');
+  }
+}

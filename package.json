@@ -1,0 +1,17 @@
+{
+  "name": "github-stats-card",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun run index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^20",
+    "@vercel/node": "^3.0.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
