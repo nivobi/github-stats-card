@@ -1,6 +1,5 @@
 {
   "name": "github-stats-card",
-  "module": "index.ts",
   "type": "module",
   "private": true,
   "scripts": {

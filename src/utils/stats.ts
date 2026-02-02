@@ -6,13 +6,18 @@ export function calculateStreak(calendar: ContributionCalendar): Streak {
   let endDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   let startDate = endDate;
 
+  if (days.length === 0) {
+    return { days: 0, start: endDate, end: endDate };
+  }
+
   let i = 0;
-  if (days[0].contributionCount === 0) i = 1;
+  if (days[0]?.contributionCount === 0) i = 1;
 
   for (; i < days.length; i++) {
-    if (days[i].contributionCount > 0) {
+    const day = days[i];
+    if (day && day.contributionCount > 0) {
       streak++;
-      startDate = new Date(days[i].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      startDate = new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     } else {
       break;
     }
