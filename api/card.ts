@@ -25,12 +25,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const svgTemplate = getSvgTemplate();
     const svg = renderSvg(svgTemplate, data, role, streak, monthCommits);
 
-    res.setHeader('Content-Type', 'image/svg+xml');
+    res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300'); // 5 min cache
     res.status(200).send(svg);
 
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).send('Error generating stats card');
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).send(`Error generating stats card: ${errorMessage}`);
   }
 }
