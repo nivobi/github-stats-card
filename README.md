@@ -2,7 +2,7 @@
 
 A dynamic SVG card that displays your GitHub statistics with different status modes based on your activity.
 
-![Preview](https://via.placeholder.com/450x180?text=Your+GitHub+Stats+Card)
+![GitHub Stats](https://github-stats-card-chi.vercel.app/api/card)
 
 ## Features
 
