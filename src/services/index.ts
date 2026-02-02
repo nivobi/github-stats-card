@@ -1,2 +1,2 @@
-export * from "./github";
-export * from "./svg";
+export * from "./github.js";
+export * from "./svg.js";

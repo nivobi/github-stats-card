@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getGitHubStats, renderSvg } from '../src/services';
-import { getRole, calculateStreak, calculateMonthCommits } from '../src/utils';
-import { getSvgTemplate } from '../src/template';
+import { getGitHubStats, renderSvg } from '../src/services/index.js';
+import { getRole, calculateStreak, calculateMonthCommits } from '../src/utils/index.js';
+import { getSvgTemplate } from '../src/template.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {

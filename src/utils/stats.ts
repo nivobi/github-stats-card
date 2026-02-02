@@ -1,4 +1,4 @@
-import type { ContributionCalendar, Streak } from "../types";
+import type { ContributionCalendar, Streak } from "../types.js";
 
 export function calculateStreak(calendar: ContributionCalendar): Streak {
   const days = calendar.weeks.flatMap((w) => w.contributionDays).reverse();

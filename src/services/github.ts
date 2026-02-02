@@ -1,4 +1,4 @@
-import type { GitHubStats } from "../types";
+import type { GitHubStats } from "../types.js";
 
 export async function getGitHubStats(user: string, token: string): Promise<GitHubStats> {
   const query = `

@@ -1,5 +1,5 @@
-import type { GitHubStats, Role, Streak } from "../types";
-import { ICONS } from "../config";
+import type { GitHubStats, Role, Streak } from "../types.js";
+import { ICONS } from "../config.js";
 
 export function renderSvg(
   template: string,
