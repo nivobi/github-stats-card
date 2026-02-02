@@ -2,7 +2,7 @@
   "functions": {
     "api/card.ts": {
       "maxDuration": 10,
-      "includeFiles": "src/**"
+      "includeFiles": "src/template.svg"
     }
   }
 }
