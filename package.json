@@ -3,7 +3,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun run index.ts"
+    "dev": "bun run index.ts",
+    "build": "tsc --project tsconfig.vercel.json"
   },
   "devDependencies": {
     "@types/bun": "latest",
