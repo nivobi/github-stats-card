@@ -1,4 +1,7 @@
 {
+  "rewrites": [
+    { "source": "/", "destination": "/api/card" }
+  ],
   "functions": {
     "api/card.ts": {
       "memory": 1024,
