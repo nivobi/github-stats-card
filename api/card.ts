@@ -100,12 +100,20 @@ async function getGitHubStats(user: string, token: string): Promise<GitHubStats>
             weeks { contributionDays { contributionCount date } }
           }
         }
-        repositories(first: 5, orderBy: {field: PUSHED_AT, direction: DESC}, ownerAffiliations: OWNER, isFork: false) {
+        repositories(first: 30, orderBy: {field: PUSHED_AT, direction: DESC}, ownerAffiliations: OWNER, isFork: false) {
           nodes {
             name
             pushedAt
             primaryLanguage { name }
             defaultBranchRef { target { ... on Commit { oid } } }
+            languages(first: 5, orderBy: {field: SIZE, direction: DESC}) {
+              edges {
+                size
+                node {
+                  name
+                }
+              }
+            }
           }
         }
         topRepositories(first: 1, orderBy: {field: STARGAZERS, direction: DESC}) {
@@ -125,8 +133,41 @@ async function getGitHubStats(user: string, token: string): Promise<GitHubStats>
   if (json.errors) throw new Error(JSON.stringify(json.errors));
 
   const userData = json.data.user;
-  const recentRepo = userData.repositories.nodes[0];
+  const allRepos = userData.repositories.nodes;
+  const recentRepo = allRepos[0];
   const topRepo = userData.topRepositories.nodes[0];
+
+  // Calculate most used language in past 30 days
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const languageStats: Record<string, number> = {};
+
+  for (const repo of allRepos) {
+    if (!repo.pushedAt) continue;
+
+    const pushedDate = new Date(repo.pushedAt);
+    if (pushedDate >= thirtyDaysAgo) {
+      // Aggregate language usage by bytes
+      if (repo.languages?.edges) {
+        for (const edge of repo.languages.edges) {
+          const langName = edge.node.name;
+          const size = edge.size || 0;
+          languageStats[langName] = (languageStats[langName] || 0) + size;
+        }
+      }
+    }
+  }
+
+  // Find most used language
+  let mostUsedLanguage = "Code";
+  let maxSize = 0;
+  for (const [lang, size] of Object.entries(languageStats)) {
+    if (size > maxSize) {
+      maxSize = size;
+      mostUsedLanguage = lang;
+    }
+  }
 
   const now = new Date().toISOString();
   const defaultHash = "0000000";
@@ -136,7 +177,7 @@ async function getGitHubStats(user: string, token: string): Promise<GitHubStats>
     calendar: userData.contributionsCollection.contributionCalendar,
     lastPush: recentRepo?.pushedAt || now,
     lastHash: recentRepo?.defaultBranchRef?.target?.oid || defaultHash,
-    recentLanguage: recentRepo?.primaryLanguage?.name || "Code",
+    recentLanguage: mostUsedLanguage,
     topLanguage: topRepo?.primaryLanguage?.name || recentRepo?.primaryLanguage?.name || "Code",
   };
 }
