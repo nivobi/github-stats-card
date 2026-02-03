@@ -146,7 +146,6 @@
 
       .cls-15 {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-        font-variation-settings: 'wght' 500, 'wdth' 100;
         font-weight: 500;
       }
 
@@ -180,7 +179,6 @@
 
       .cls-16, .cls-17, .cls-22 {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-        font-variation-settings: 'wght' 700, 'wdth' 100;
         font-weight: 700;
       }
 
@@ -291,7 +289,6 @@
       .cls-18 {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
         font-size: 10px;
-        font-variation-settings: 'wght' 300, 'wdth' 100;
         font-weight: 300;
       }
 
@@ -357,7 +354,6 @@
 
       .cls-19, .cls-20, .cls-23 {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-        font-variation-settings: 'wght' 400, 'wdth' 100;
       }
 
       .cls-69 {
