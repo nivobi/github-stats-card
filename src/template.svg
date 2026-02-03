@@ -1,6 +1,8 @@
 <svg id="Lag_1" data-name="Lag 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 450 180">
   <defs>
     <style>
+      @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&amp;display=swap');
+
       .cls-1 {
         letter-spacing: -.01em;
       }
