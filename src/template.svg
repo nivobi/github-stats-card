@@ -95,7 +95,7 @@
       }
 
       .cls-1 {
-        letter-spacing: -.01em;
+        letter-spacing: 0em;
       }
 
       .cls-2 {
@@ -103,7 +103,7 @@
       }
 
       .cls-3 {
-        letter-spacing: .01em;
+        letter-spacing: 0em;
       }
 
       .cls-4 {
@@ -115,7 +115,7 @@
       }
 
       .cls-6 {
-        letter-spacing: -.04em;
+        letter-spacing: 0em;
       }
 
       .cls-7 {
@@ -271,7 +271,7 @@
       }
 
       .cls-48 {
-        letter-spacing: -.05em;
+        letter-spacing: 0em;
       }
 
       .cls-49 {
@@ -310,7 +310,7 @@
       }
 
       .cls-56 {
-        letter-spacing: -.08em;
+        letter-spacing: 0em;
       }
 
       .cls-57 {
@@ -318,7 +318,7 @@
       }
 
       .cls-58 {
-        letter-spacing: -.05em;
+        letter-spacing: 0em;
       }
 
       .cls-59 {
@@ -342,7 +342,7 @@
       }
 
       .cls-64 {
-        letter-spacing: -.01em;
+        letter-spacing: 0em;
       }
 
       .cls-65 {
@@ -443,7 +443,7 @@
       }
 
       .cls-87 {
-        letter-spacing: .02em;
+        letter-spacing: 0em;
       }
 
       .cls-88 {
@@ -499,7 +499,7 @@
       }
 
       .cls-99 {
-        letter-spacing: -.04em;
+        letter-spacing: 0em;
       }
 
       .cls-100 {
