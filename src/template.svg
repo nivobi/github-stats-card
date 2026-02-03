@@ -1,7 +1,86 @@
 <svg id="Lag_1" data-name="Lag 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 450 180">
   <defs>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&amp;display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;family=Roboto:wght@300;400;500;700&amp;family=Fira+Code:wght@400;500;600&amp;display=swap');
+
+      /* Fade in animation for entire card */
+      svg {
+        animation: fadeIn 0.6s ease-in;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      /* Staggered animations - Icon appears first */
+      #icon_goblin, #icon_human, #icon_caffeine, #icon_grass, #icon_hibernate, #icon_ancient {
+        animation: float 3s ease-in-out infinite, fadeIn 0.5s ease-out;
+        animation-delay: 0s, 0.2s;
+        transform-origin: center;
+        opacity: 0;
+        animation-fill-mode: forwards;
+      }
+
+      @keyframes float {
+        0%, 100% {
+          transform: translateY(3px);
+        }
+        50% {
+          transform: translateY(9px);
+        }
+      }
+
+      /* Numbers appear second (left side) */
+      #total_commits, #month_commits, #streak_count {
+        animation: smoothFade 0.8s ease-out;
+        animation-delay: 0.4s;
+        opacity: 0;
+        animation-fill-mode: forwards;
+      }
+
+      /* Status title appears third - with retro font */
+      #role_name {
+        animation: smoothFade 0.8s ease-out;
+        animation-delay: 0.6s;
+        opacity: 0;
+        animation-fill-mode: forwards;
+        font-family: 'Press Start 2P', cursive !important;
+        font-size: 6px !important;
+      }
+
+      /* Status description appears last - with retro font */
+      #role_desc {
+        animation: smoothFade 0.8s ease-out;
+        animation-delay: 0.8s;
+        opacity: 0;
+        animation-fill-mode: forwards;
+        font-family: 'Press Start 2P', cursive !important;
+        font-size: 4px !important;
+      }
+
+      @keyframes smoothFade {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      /* Fira Code for languages with fade-in animation */
+      #lang_main, #lang_recent {
+        font-family: 'Fira Code', monospace !important;
+        font-weight: 500 !important;
+        animation: smoothFade 0.8s ease-out;
+        animation-delay: 0.4s;
+        opacity: 0;
+        animation-fill-mode: forwards;
+      }
 
       .cls-1 {
         letter-spacing: -.01em;
@@ -60,7 +139,7 @@
       }
 
       .cls-15 {
-        font-family: Roboto-Medium, Roboto;
+        font-family: Roboto;
         font-variation-settings: 'wght' 500, 'wdth' 100;
         font-weight: 500;
       }
@@ -94,7 +173,7 @@
       }
 
       .cls-16, .cls-17, .cls-22 {
-        font-family: Roboto-Bold, Roboto;
+        font-family: Roboto;
         font-variation-settings: 'wght' 700, 'wdth' 100;
         font-weight: 700;
       }
@@ -204,7 +283,7 @@
       }
 
       .cls-18 {
-        font-family: Roboto-Light, Roboto;
+        font-family: Roboto;
         font-size: 10px;
         font-variation-settings: 'wght' 300, 'wdth' 100;
         font-weight: 300;
@@ -271,7 +350,7 @@
       }
 
       .cls-19, .cls-20, .cls-23 {
-        font-family: Roboto-Regular, Roboto;
+        font-family: Roboto;
         font-variation-settings: 'wght' 400, 'wdth' 100;
       }
 
@@ -453,8 +532,8 @@
     <path class="cls-52" d="M449,1v178H1V1h448M450,0H0v180h450V0h0Z"/>
   </g>
   <text class="cls-16" transform="translate(315.1 55.59)"><tspan class="cls-3" x="0" y="0">S</tspan><tspan class="cls-6" x="7.51" y="0">T</tspan><tspan class="cls-48" x="14.44" y="0">A</tspan><tspan class="cls-3" x="21.9" y="0">TUS:</tspan></text>
-  <text id="role_name" class="cls-22" x="340" y="125" text-anchor="middle">Full-on Goblin Mode</text>
-    <text id="role_desc" class="cls-20" x="340" y="139" text-anchor="middle">Writing code faster than I can think.</text>
+  <text id="role_name" class="cls-22" x="340" y="131" text-anchor="middle">Full-on Goblin Mode</text>
+    <text id="role_desc" class="cls-20" x="340" y="139" text-anchor="middle">"Writing code faster than I can think."</text>
   <g id="Generativt_objekt" data-name="Generativt objekt">
     <g>
       <path class="cls-21" d="M65.08,48.23c1.03-1.14,1.94-2.26,2.61-3.41-18.61,3.74-32.63,20.18-32.63,39.89,0,10.55,4.02,20.16,10.6,27.39h3.75c-7.19-6.91-11.67-16.62-11.67-27.39,0-17.29,11.54-31.87,27.34-36.48Z"/>

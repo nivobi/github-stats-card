@@ -198,7 +198,7 @@ function renderSvg(
   };
 
   setText("role_name", role.name);
-  setText("role_desc", role.desc);
+  setText("role_desc", `"${role.desc}"`);
   setText("streak_count", streak.days);
   setText("streak_range", `${streak.start} - ${streak.end}`);
   setText("total_commits", data.totalCommits);
