@@ -12,7 +12,7 @@ async function getGitHubStatsREST(user: string): Promise<GitHubStats> {
     throw new Error(`User "${user}" not found or API error: ${reposResponse.statusText}`);
   }
 
-  const repos = await reposResponse.json();
+  const repos = await reposResponse.json() as any[];
 
   // Get recent repo data
   const recentRepo = repos[0];

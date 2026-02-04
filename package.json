@@ -9,7 +9,7 @@
   "devDependencies": {
     "@types/bun": "latest",
     "@types/node": "^20",
-    "@vercel/node": "^3.0.0"
+    "@vercel/node": "^5.5.29"
   },
   "peerDependencies": {
     "typescript": "^5"

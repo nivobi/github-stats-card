@@ -103,7 +103,7 @@ async function getGitHubStatsREST(user: string): Promise<GitHubStats> {
     throw new Error(`User "${user}" not found or API error: ${reposResponse.statusText}`);
   }
 
-  const repos = await reposResponse.json();
+  const repos = await reposResponse.json() as any[];
 
   // Filter out forks and get recent repos
   const nonForkRepos = repos.filter((repo: any) => !repo.fork);
