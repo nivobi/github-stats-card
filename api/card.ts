@@ -90,7 +90,70 @@ function calculateMonthCommits(calendar: ContributionCalendar): number {
 }
 
 // ===== GITHUB API =====
-async function getGitHubStats(user: string, token: string): Promise<GitHubStats> {
+
+// Fetch stats using REST API (for unauthenticated requests)
+async function getGitHubStatsREST(user: string): Promise<GitHubStats> {
+  // Fetch user's repositories
+  const reposResponse = await fetch(
+    `https://api.github.com/users/${user}/repos?sort=pushed&per_page=30&type=owner`,
+    { headers: { "Accept": "application/vnd.github.v3+json" } }
+  );
+
+  if (!reposResponse.ok) {
+    throw new Error(`User "${user}" not found or API error: ${reposResponse.statusText}`);
+  }
+
+  const repos = await reposResponse.json();
+
+  // Filter out forks and get recent repos
+  const nonForkRepos = repos.filter((repo: any) => !repo.fork);
+  const recentRepo = nonForkRepos[0];
+
+  // Calculate most used language from recent repos
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const languageCount: Record<string, number> = {};
+  for (const repo of nonForkRepos) {
+    if (!repo.pushed_at) continue;
+
+    const pushedDate = new Date(repo.pushed_at);
+    if (pushedDate >= thirtyDaysAgo && repo.language) {
+      languageCount[repo.language] = (languageCount[repo.language] || 0) + 1;
+    }
+  }
+
+  // Find most used language
+  let mostUsedLanguage = "Code";
+  let maxCount = 0;
+  for (const [lang, count] of Object.entries(languageCount)) {
+    if (count > maxCount) {
+      maxCount = count;
+      mostUsedLanguage = lang;
+    }
+  }
+
+  const now = new Date().toISOString();
+  const defaultHash = "0000000";
+
+  // Create a mock calendar (we can't get real contribution data without GraphQL auth)
+  const mockCalendar = {
+    totalContributions: 0,
+    weeks: []
+  };
+
+  return {
+    totalCommits: 0, // Can't get real commit count without GraphQL
+    calendar: mockCalendar,
+    lastPush: recentRepo?.pushed_at || now,
+    lastHash: defaultHash,
+    recentLanguage: mostUsedLanguage,
+    topLanguage: recentRepo?.language || mostUsedLanguage || "Code",
+  };
+}
+
+// Fetch stats using GraphQL API (for authenticated requests)
+async function getGitHubStatsGraphQL(user: string, token: string): Promise<GitHubStats> {
   const query = `
     query {
       user(login: "${user}") {
@@ -125,17 +188,24 @@ async function getGitHubStats(user: string, token: string): Promise<GitHubStats>
 
   const response = await fetch("https://api.github.com/graphql", {
     method: "POST",
-    headers: { Authorization: `bearer ${token}`, "Content-Type": "application/json" },
+    headers: {
+      Authorization: `bearer ${token}`,
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify({ query }),
   });
 
   const json: any = await response.json();
   if (json.errors) throw new Error(JSON.stringify(json.errors));
 
-  const userData = json.data.user;
+  const userData = json.data?.user;
+  if (!userData) {
+    throw new Error(`User "${user}" not found`);
+  }
+
   const allRepos = userData.repositories.nodes;
   const recentRepo = allRepos[0];
-  const topRepo = userData.topRepositories.nodes[0];
+  const topRepo = userData.topRepositories?.nodes?.[0];
 
   // Calculate most used language in past 30 days
   const thirtyDaysAgo = new Date();
@@ -180,6 +250,14 @@ async function getGitHubStats(user: string, token: string): Promise<GitHubStats>
     recentLanguage: mostUsedLanguage,
     topLanguage: topRepo?.primaryLanguage?.name || recentRepo?.primaryLanguage?.name || "Code",
   };
+}
+
+async function getGitHubStats(user: string, token?: string): Promise<GitHubStats> {
+  if (token) {
+    return getGitHubStatsGraphQL(user, token);
+  } else {
+    return getGitHubStatsREST(user);
+  }
 }
 
 // ===== SVG RENDERING =====
@@ -235,12 +313,26 @@ function getSvgTemplate(): string {
 // ===== HANDLER =====
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    const username = process.env.GITHUB_USERNAME || '';
-    const token = process.env.GITHUB_TOKEN || '';
+    // Get username from query parameter or fall back to environment variable
+    const username = (req.query.username as string) || process.env.GITHUB_USERNAME || '';
 
-    if (!username || !token) {
-      return res.status(500).send('Missing GITHUB_USERNAME or GITHUB_TOKEN environment variables');
+    if (!username) {
+      return res.status(400).send('Please provide a username via ?username=YOUR_USERNAME');
     }
+
+    // Validate username format (alphanumeric and hyphens only)
+    if (!/^[a-zA-Z0-9-]+$/.test(username)) {
+      return res.status(400).send('Invalid username format. Use only letters, numbers, and hyphens.');
+    }
+
+    // Determine which token to use
+    const configuredUsername = process.env.GITHUB_USERNAME || '';
+    const isOwner = username === configuredUsername;
+
+    // Use owner's token if this is the owner, otherwise use fallback token if available
+    const token = isOwner
+      ? process.env.GITHUB_TOKEN
+      : (process.env.GITHUB_FALLBACK_TOKEN || undefined);
 
     const data = await getGitHubStats(username, token);
 

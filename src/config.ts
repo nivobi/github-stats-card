@@ -2,6 +2,7 @@ export const config = {
   github: {
     token: process.env.GITHUB_TOKEN || "",
     username: process.env.GITHUB_USERNAME || "",
+    fallbackToken: process.env.GITHUB_FALLBACK_TOKEN || "",
   },
   server: {
     port: parseInt(process.env.PORT || "3000", 10),

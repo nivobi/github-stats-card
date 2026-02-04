@@ -1,47 +1,499 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GitHub Stats Card</title>
+  <title>GitHub Stats Card Generator</title>
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
       background: #0d1117;
       color: #c9d1d9;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 2rem 1rem;
     }
+
     .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero {
       text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      color: #58a6ff;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: #8b949e;
+      margin-bottom: 2rem;
+    }
+
+    .demo-card {
       max-width: 600px;
-      padding: 2rem;
-    }
-    h1 { color: #58a6ff; }
-    img {
-      max-width: 100%;
-      margin: 2rem 0;
+      margin: 0 auto 1rem;
       border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     }
-    code {
+
+    .demo-card img {
+      width: 100%;
+      display: block;
+    }
+
+    .demo-note {
+      font-size: 0.9rem;
+      color: #8b949e;
+      font-style: italic;
+      margin-top: 1rem;
+    }
+
+    .card-preview-container {
+      margin-bottom: 2rem;
+    }
+
+    .share-section-hero {
+      max-width: 600px;
+      margin: 2rem auto 0;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+
+    .input-section {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .input-section h2 {
+      font-size: 1.5rem;
+      color: #c9d1d9;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #c9d1d9;
+      font-weight: 500;
+    }
+
+    .input-wrapper {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .form-group input {
+      flex: 1;
+      padding: 0.75rem;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #c9d1d9;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #58a6ff;
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+    }
+
+    .form-group input.error {
+      border-color: #f85149;
+    }
+
+    .error-message {
+      color: #f85149;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      background: #238636;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: #2ea043;
+    }
+
+    .btn:disabled {
+      background: #30363d;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .btn-secondary {
+      background: #21262d;
+      border: 1px solid #30363d;
+    }
+
+    .btn-secondary:hover {
+      background: #30363d;
+    }
+
+
+
+    .loading {
+      padding: 3rem;
+      text-align: center;
+      color: #8b949e;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #30363d;
+      border-top-color: #58a6ff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .share-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .share-group h3 {
+      font-size: 1rem;
+      color: #c9d1d9;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .copy-wrapper {
+      display: flex;
+      gap: 0.5rem;
+      align-items: stretch;
+    }
+
+    .copy-input {
+      flex: 1;
+      padding: 0.75rem;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #c9d1d9;
+      font-size: 0.875rem;
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .copy-btn {
+      padding: 0.75rem 1rem;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #c9d1d9;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover {
+      background: #30363d;
+    }
+
+    .copy-btn.copied {
+      background: #238636;
+      border-color: #238636;
+    }
+
+    .instructions {
+      padding: 1rem;
+      background: #0d1117;
+      border-radius: 6px;
+      margin-top: 1.5rem;
+    }
+
+    .instructions h4 {
+      font-size: 0.875rem;
+      color: #8b949e;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .instructions ol {
+      margin-left: 1.5rem;
+      font-size: 0.875rem;
+      color: #8b949e;
+    }
+
+    .instructions code {
       background: #161b22;
       padding: 0.2rem 0.4rem;
-      border-radius: 4px;
+      border-radius: 3px;
       color: #ff7b72;
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 640px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .input-wrapper {
+        flex-direction: column;
+      }
+
+      .copy-wrapper {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>GitHub Stats Card</h1>
-    <p>Your dynamic GitHub stats card is live!</p>
-    <img src="/api/card" alt="GitHub Stats" />
-    <p>Add this to your GitHub profile:</p>
-    <code>![GitHub Stats](https://your-vercel-url.vercel.app/api/card)</code>
+    <div class="hero">
+      <h1>GitHub Stats Card Generator</h1>
+      <p>Generate a dynamic GitHub stats card for any user</p>
+
+      <!-- Card Preview (initially shows demo, then user's generated card) -->
+      <div class="card-preview-container">
+        <div class="demo-card" id="cardDisplay">
+          <div class="loading" id="loadingState" style="display: none;">
+            <div class="spinner"></div>
+            Generating your card...
+          </div>
+          <img id="cardImage" src="/api/card" alt="GitHub Stats Card" />
+        </div>
+        <p class="demo-note" id="cardNote">Live demo card above</p>
+      </div>
+
+      <!-- Share section (hidden initially, shows after generation) -->
+      <div id="shareSection" style="display: none;" class="share-section-hero">
+        <div class="share-group">
+          <h3>Shareable Link</h3>
+          <div class="copy-wrapper">
+            <input type="text" readonly class="copy-input" id="shareUrl" />
+            <button class="copy-btn" data-copy="shareUrl">Copy</button>
+          </div>
+        </div>
+
+        <div class="share-group">
+          <h3>Markdown Code</h3>
+          <div class="copy-wrapper">
+            <input type="text" readonly class="copy-input" id="markdownCode" />
+            <button class="copy-btn" data-copy="markdownCode">Copy</button>
+          </div>
+        </div>
+
+        <div class="instructions">
+          <h4>How to add to your GitHub profile:</h4>
+          <ol>
+            <li>Create or edit your <code>README.md</code> in a repository named after your username</li>
+            <li>Paste the markdown code above</li>
+            <li>Commit and push - your card will appear on your profile!</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-section">
+      <h2>Generate Your Card</h2>
+      <form id="cardForm">
+        <div class="form-group">
+          <label for="username">GitHub Username</label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="Enter GitHub username (e.g., octocat)"
+              required
+              autocomplete="off"
+              pattern="[a-zA-Z0-9\-]+"
+            />
+            <button type="submit" class="btn">Generate Card</button>
+          </div>
+          <div class="error-message" id="errorMessage">
+            Invalid username. Use only letters, numbers, and hyphens.
+          </div>
+        </div>
+      </form>
+    </div>
+
   </div>
+
+  <script>
+    const form = document.getElementById('cardForm');
+    const usernameInput = document.getElementById('username');
+    const errorMessage = document.getElementById('errorMessage');
+    const loadingState = document.getElementById('loadingState');
+    const cardImage = document.getElementById('cardImage');
+    const cardNote = document.getElementById('cardNote');
+    const shareSection = document.getElementById('shareSection');
+    const shareUrl = document.getElementById('shareUrl');
+    const markdownCode = document.getElementById('markdownCode');
+
+    // Validate username format
+    function isValidUsername(username) {
+      return /^[a-zA-Z0-9-]+$/.test(username);
+    }
+
+    // Generate card URL
+    function getCardUrl(username) {
+      return `${window.location.origin}/api/card?username=${encodeURIComponent(username)}`;
+    }
+
+    // Show error state
+    function showError(message) {
+      usernameInput.classList.add('error');
+      errorMessage.textContent = message;
+      errorMessage.classList.add('show');
+    }
+
+    // Clear error state
+    function clearError() {
+      usernameInput.classList.remove('error');
+      errorMessage.classList.remove('show');
+    }
+
+    // Generate and show card
+    function generateCard(username) {
+      if (!isValidUsername(username)) {
+        showError('Invalid username. Use only letters, numbers, and hyphens.');
+        return;
+      }
+
+      clearError();
+
+      // Show loading state
+      loadingState.style.display = 'block';
+      cardImage.style.display = 'none';
+      shareSection.style.display = 'none';
+
+      // Scroll to card
+      document.querySelector('.hero').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Generate URLs
+      const cardUrl = getCardUrl(username);
+      shareUrl.value = cardUrl;
+      markdownCode.value = `![GitHub Stats](${cardUrl})`;
+
+      // Load card image
+      const img = new Image();
+      img.onload = () => {
+        cardImage.src = cardUrl;
+        cardImage.alt = `${username}'s GitHub Stats Card`;
+        loadingState.style.display = 'none';
+        cardImage.style.display = 'block';
+        shareSection.style.display = 'block';
+        cardNote.textContent = `${username}'s GitHub stats card`;
+      };
+      img.onerror = () => {
+        loadingState.innerHTML = '<p style="color: #f85149;">Error loading card. Please check the username and try again.</p>';
+        setTimeout(() => {
+          loadingState.style.display = 'none';
+          cardImage.style.display = 'block';
+          cardImage.src = '/api/card';
+          cardNote.textContent = 'Live demo card above';
+        }, 3000);
+      };
+      img.src = cardUrl + '&t=' + Date.now(); // Cache bust
+    }
+
+    // Form submission
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = usernameInput.value.trim();
+      if (username) {
+        generateCard(username);
+      }
+    });
+
+    // Input validation
+    usernameInput.addEventListener('input', () => {
+      clearError();
+    });
+
+    // Copy to clipboard
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.dataset.copy;
+        const input = document.getElementById(targetId);
+
+        input.select();
+        input.setSelectionRange(0, 99999); // For mobile
+
+        navigator.clipboard.writeText(input.value).then(() => {
+          const originalText = btn.textContent;
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
+
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('copied');
+          }, 2000);
+        }).catch(() => {
+          // Fallback for older browsers
+          document.execCommand('copy');
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
+
+          setTimeout(() => {
+            btn.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 2000);
+        });
+      });
+    });
+
+    // Check if username is in URL on page load
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlUsername = urlParams.get('u');
+    if (urlUsername) {
+      usernameInput.value = urlUsername;
+      generateCard(urlUsername);
+    }
+  </script>
 </body>
 </html>
