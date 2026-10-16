@@ -39,6 +39,9 @@ interface Streak {
 }
 
 // ===== CONFIG =====
+// Below the function's 10 s maxDuration, so a slow GitHub API still gets a fallback response
+const GITHUB_TIMEOUT_MS = 8000;
+
 const ICONS: Record<string, string> = {
   goblin: "icon_goblin",
   human: "icon_human",
@@ -96,7 +99,7 @@ async function getGitHubStatsREST(user: string): Promise<GitHubStats> {
   // Fetch user's repositories
   const reposResponse = await fetch(
     `https://api.github.com/users/${user}/repos?sort=pushed&per_page=30&type=owner`,
-    { headers: { "Accept": "application/vnd.github.v3+json" } }
+    { headers: { "Accept": "application/vnd.github.v3+json" }, signal: AbortSignal.timeout(GITHUB_TIMEOUT_MS) }
   );
 
   if (!reposResponse.ok) {
@@ -188,6 +191,7 @@ async function getGitHubStatsGraphQL(user: string, token: string): Promise<GitHu
 
   const response = await fetch("https://api.github.com/graphql", {
     method: "POST",
+    signal: AbortSignal.timeout(GITHUB_TIMEOUT_MS),
     headers: {
       Authorization: `bearer ${token}`,
       "Content-Type": "application/json"
@@ -304,6 +308,23 @@ function renderSvg(
   return svg;
 }
 
+// ===== FALLBACK =====
+// Last successfully rendered card per username (lives as long as the warm function instance)
+const lastGoodSvg = new Map<string, string>();
+
+function renderFallbackSvg(template: string): string {
+  const role: Role = { key: "hibernate", name: "Stats loading", desc: "GitHub is slow right now. Back soon." };
+  const data: GitHubStats = {
+    totalCommits: 0,
+    calendar: { totalContributions: 0, weeks: [] },
+    lastPush: new Date().toISOString(),
+    lastHash: "-------",
+    recentLanguage: "-",
+    topLanguage: "-",
+  };
+  return renderSvg(template, data, role, { days: 0, start: "-", end: "-" }, 0);
+}
+
 // ===== TEMPLATE LOADER =====
 function getSvgTemplate(): string {
   const templatePath = join(process.cwd(), 'src', 'template.svg');
@@ -347,13 +368,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const svgTemplate = getSvgTemplate();
     const svg = renderSvg(svgTemplate, data, role, streak, monthCommits);
 
+    lastGoodSvg.set(username, svg);
+
     res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300');
+    // Serve the cached card instantly and refresh it in the background, so
+    // GitHub's image proxy never waits for the slow GraphQL query
+    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=86400');
     res.status(200).send(svg);
 
   } catch (error) {
     console.error('Error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).send(`Error generating stats card: ${errorMessage}`);
+    // Always answer with an image: a 500 shows up as a broken image on GitHub.
+    // Short cache so a real card replaces the fallback quickly.
+    const username = (req.query.username as string) || process.env.GITHUB_USERNAME || '';
+    const svg = lastGoodSvg.get(username) ?? renderFallbackSvg(getSvgTemplate());
+    res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60');
+    res.status(200).send(svg);
   }
 }
